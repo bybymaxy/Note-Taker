@@ -1,57 +1,60 @@
 const express = require('express');
+const path = require('path');
 const fs = require('fs');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Start the server
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
-// Define HTML routes
+// HTML routes
 app.get('/', (req, res) => {
-  res.send('Hello, World!');
+  res.sendFile(path.join(__dirname, 'Develop', 'public', 'index.html'));
 });
 
-app.get('/about', (req, res) => {
-  res.send('About page');
+app.get('/notes', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Develop', 'public', 'Notes.html'));
 });
 
-app.get('/api/users', (req, res) => {
-  fs.readFile('db.json', 'utf8', (err, data) => {
+// API routes
+app.get('/api/notes', (req, res) => {
+  fs.readFile(path.join(__dirname, 'db.json'), 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       res.status(500).send('Internal Server Error');
     } else {
-      const users = JSON.parse(data);
-      res.json(users);
+      const notes = JSON.parse(data);
+      res.json(notes);
     }
   });
 });
 
-app.post('/api/users', (req, res) => {
-  const newUser = req.body;
-  fs.readFile('db.json', 'utf8', (err, data) => {
+app.post('/api/notes', (req, res) => {
+  const newNote = req.body;
+  fs.readFile(path.join(__dirname, 'db.json'), 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       res.status(500).send('Internal Server Error');
     } else {
-      const users = JSON.parse(data);
-      users.push(newUser);
-      fs.writeFile('db.json', JSON.stringify(users), (err) => {
+      const notes = JSON.parse(data);
+      notes.push(newNote);
+      fs.writeFile(path.join(__dirname, 'db.json'), JSON.stringify(notes), (err) => {
         if (err) {
           console.error(err);
           res.status(500).send('Internal Server Error');
         } else {
-          res.status(201).send('User created successfully');
+          res.json(newNote);
         }
       });
     }
   });
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
 // Front-end code

@@ -56,13 +56,13 @@ app.post('/api/notes', (req, res) => {
   });
 });
 
-// Start the server
+// Start the serverno
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
 // Front-end code
-fetch('/api/users', {
+fetch('/api/notes', {
   method: 'GET',
   headers: {
     'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ fetch('/api/users', {
     // handle any errors
   });
 
-fetch('/api/users', {
+fetch('/api/notes', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

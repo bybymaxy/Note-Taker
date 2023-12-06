@@ -58,6 +58,31 @@ app.post('/api/notes', (req, res) => {
   });
 });
 
+app.delete('/api/notes/:id', (req, res) => {
+  const noteId = req.params.id;
+
+  fs.readFile(path.join(__dirname, 'db', 'db.json'), 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    const notes = JSON.parse(data);
+    const updatedNotes = notes.filter(note => note.id !== noteId);
+
+    fs.writeFile(path.join(__dirname, 'db', 'db.json'), JSON.stringify(updatedNotes), (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+
+      res.sendStatus(204); // Send a success status code (No Content)
+    });
+  });
+});
+
+
+
 // Start the serverno
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
@@ -74,24 +99,28 @@ fetch('/api/notes', {
   .then(data => {
     // handle the response data
     // update the DOM accordingly
-  })
-  .catch(error => {
-    // handle any errors
-  });
 
-fetch('/api/notes', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ key: "value" }), // include the necessary request body data
-})
-  .then(response => {
-    if (response.ok) {
-      // handle the successful response
-    } else {
-      // handle the error response
-    }
+    // Add event listeners to delete buttons
+    const deleteButtons = document.querySelectorAll('.delete-button');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const noteId = button.dataset.noteId;
+
+        fetch(`/api/notes/${noteId}`, {
+          method: 'DELETE',
+        })
+          .then(response => {
+            if (response.ok) {
+              // handle the successful response
+            } else {
+              // handle the error response
+            }
+          })
+          .catch(error => {
+            // handle any errors
+          });
+      });
+    });
   })
   .catch(error => {
     // handle any errors
